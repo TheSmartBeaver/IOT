@@ -1,0 +1,3 @@
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Light_control/CMakeFiles/rebuild_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Light_control/CMakeFiles/edit_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Light_control/CMakeFiles/light_control-client.dir

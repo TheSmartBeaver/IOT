@@ -1,0 +1,66 @@
+./tools/lwm2m_object_registry.py --get-xml 3311 | ./tools/anjay_codegen.py -i - -o created_objects_src/light_control.c
+
+./tools/lwm2m_object_registry.py --get-xml 3302 | ./tools/anjay_codegen.py -i - -o created_objects_src/presence_captor.c
+
+./tools/lwm2m_object_registry.py --get-xml 3342 | ./tools/anjay_codegen.py -i - -o created_objects_src/on_off_switch.c
+
+./tools/lwm2m_object_registry.py --get-xml 3343 | ./tools/anjay_codegen.py -i - -o created_objects_src/dimmer.c
+
+
+
+
+/* Pour installer nos objets ??? */
+install_object(demo, geopoints_object_create(demo),
+                              geopoints_get_instances,
+                              geopoints_notify_time_dependent,
+                              geopoints_object_release)
+
+
+
+
+/* Il faut créer ce genre de fonction pour enregistrer nos objets ??? */
+const anjay_dm_object_def_t **time_object_create(void) {
+    /* la struct de l'objet A REMPLACER */
+    time_object_t *obj = (time_object_t *) avs_calloc(1, sizeof(time_object_t));
+    if (!obj) {
+        return NULL;
+    }
+    obj->def = &OBJ_DEF;
+
+    /* CHANGER */
+    time_instance_t *inst = add_instance(obj, 0);
+    if (inst) {
+        strcpy(inst->application_type, "Clock 0");
+    } else {
+        avs_free(obj);
+        return NULL;
+    }
+
+    return &obj->def;
+}
+
+
+
+/* Pour changer un état */
+strcpy(inst->application_type, "Clock 0");
+
+
+/*VOIR TOUS les handlers ici */
+static const anjay_dm_object_def_t OBJ_DEF
+
+
+/* POUR MODIFIER ETAT voir */
+static int instance_reset(anjay_t *anjay,
+                          const anjay_dm_object_def_t *const *obj_ptr,
+                          anjay_iid_t iid) {
+    (void) anjay;
+
+    time_object_t *obj = get_obj(obj_ptr);
+    assert(obj);
+    time_instance_t *inst = find_instance(obj, iid);
+    assert(inst);
+
+    inst->application_type[0] = '\0';
+
+    return 0;
+}

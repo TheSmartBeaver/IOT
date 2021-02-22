@@ -1,0 +1,3 @@
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/ClientMult/CMakeFiles/rebuild_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/ClientMult/CMakeFiles/edit_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/ClientMult/CMakeFiles/mult-client.dir

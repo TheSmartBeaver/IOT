@@ -1,0 +1,3 @@
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Presence_captor/CMakeFiles/edit_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Presence_captor/CMakeFiles/rebuild_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Presence_captor/CMakeFiles/presence_captor-client.dir

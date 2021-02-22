@@ -1,0 +1,3 @@
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Dimmer/CMakeFiles/edit_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Dimmer/CMakeFiles/rebuild_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/Dimmer/CMakeFiles/dimmer-client.dir

@@ -1,0 +1,3 @@
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/On_off_switch/CMakeFiles/rebuild_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/On_off_switch/CMakeFiles/edit_cache.dir
+/home/totor/Documents/M2/IOT/Anjay/Client's PROJECT/On_off_switch/CMakeFiles/on_off_switch-client.dir
