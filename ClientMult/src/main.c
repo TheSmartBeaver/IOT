@@ -4,6 +4,9 @@
 #include <anjay/server.h>
 #include <avsystem/commons/avs_log.h>
 
+#include <pthread.h>
+#include <string.h>
+
 #include <poll.h>
 
 #include "dimmer.h"
@@ -139,43 +142,14 @@ static int setup_server_object(anjay_t *anjay)
     return 0;
 }
 
-//Fonction prise de demo.c
-/*static int
-install_object(anjay_demo_t *demo,
-               const anjay_dm_object_def_t **obj_ptr,
-               anjay_demo_object_get_instances_t *get_instances_func,
-               anjay_demo_object_notify_t *time_dependent_notify_func,
-               anjay_demo_object_deleter_t *release_func)
+void *get_commands_from_terminal()
 {
-    if (!obj_ptr)
+    char c;
+    while ((c = getchar()) != EOF)
     {
-        return -1;
+        putchar(c);
     }
-
-    AVS_LIST(anjay_demo_object_t) *object_entry =
-        AVS_LIST_APPEND_PTR(&demo->objects);
-    assert(object_entry && !*object_entry);
-    *object_entry = AVS_LIST_NEW_ELEMENT(anjay_demo_object_t);
-    if (!*object_entry)
-    {
-        release_func(obj_ptr);
-        return -1;
-    }
-
-    if (anjay_register_object(demo->anjay, obj_ptr))
-    {
-        release_func(obj_ptr);
-        AVS_LIST_DELETE(object_entry);
-        return -1;
-    }
-
-    (*object_entry)->obj_ptr = obj_ptr;
-    (*object_entry)->get_instances_func =
-        (get_instances_func ? get_instances_func : get_single_instance);
-    (*object_entry)->time_dependent_notify_func = time_dependent_notify_func;
-    (*object_entry)->release_func = release_func;
-    return 0;
-}*/
+}
 
 int main(int argc, char *argv[])
 {
@@ -230,6 +204,8 @@ int main(int argc, char *argv[])
             printf("\n ça passe 3\n");
             result = anjay_register_object(anjay, presence_captor_object);
             printf("\n ça passe 4\n");
+
+            print_LightControl(light_control_object);
         }
         else
         {
@@ -239,9 +215,16 @@ int main(int argc, char *argv[])
 
     if (!result)
     {
+        // ON LANCE thread pour récupérer commande du terminal !
+        pthread_t id;
+        int dummy_arg = 0;
+        pthread_create(&id, NULL, get_commands_from_terminal, &dummy_arg);
+
+        //ON LOOP
         result = main_loop(anjay);
     }
 
+    //ON ne vient jamais ICI car LOOP unbreakable ??????
     anjay_delete(anjay);
     //MODIFIER
     dimmer_object_release(dimmer_object);

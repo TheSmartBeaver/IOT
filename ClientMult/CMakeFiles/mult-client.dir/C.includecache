@@ -53,6 +53,10 @@ anjay/server.h
 -
 avsystem/commons/avs_log.h
 -
+pthread.h
+-
+string.h
+-
 poll.h
 -
 dimmer.h

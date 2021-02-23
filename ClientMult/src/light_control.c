@@ -449,3 +449,14 @@ void light_control_object_release(const anjay_dm_object_def_t **def)
         avs_free(obj);
     }
 }
+
+void print_LightControl(const anjay_dm_object_def_t **def)
+{
+    if (def)
+    {
+        light_control_object_t *obj = get_obj(def);
+        printf("color : %s\n", &obj->instances[0].color);
+        printf("dimmer : %d\n", obj->instances[0].dimmer);
+        printf("On-Off-State : %d\n", obj->instances[0].on_off_state);
+    }
+}
