@@ -52,6 +52,7 @@ typedef struct dimmer_instance_struct
     char application_type[64];
     float level;
     char application_type_backup[64];
+    uint64_t last_notify_timestamp;
     // TODO???????: instance state
 } dimmer_instance_t;
 
@@ -373,7 +374,7 @@ const anjay_dm_object_def_t **dimmer_object_create(void)
     if (inst)
     {
         strcpy(inst->application_type, "Dimmer");
-        inst->level = 57;
+        inst->level = 50;
         printf("\n INITTTTT \n");
     }
     else
@@ -398,5 +399,62 @@ void dimmer_object_release(const anjay_dm_object_def_t **def)
         // TODO??????????: object cleanup
 
         avs_free(obj);
+    }
+}
+
+void change_dimmer_level(const anjay_dm_object_def_t **def, int iid, bool action)
+{
+    if (def)
+    {
+        dimmer_object_t *obj = get_obj(def);
+        printf("change Dimmer %d action %s : \n", iid, action ? "true" : "false");
+
+        float result;
+        if (action)
+        {
+            result = obj->instances[iid].level + 10;
+        }
+        else
+        {
+            result = obj->instances[iid].level - 10;
+        }
+
+        if (result <= 100 && result >= 0)
+            obj->instances[iid].level = result;
+    }
+}
+
+void dimmer_object_notify(anjay_t *anjay, const anjay_dm_object_def_t **def)
+{
+    if (!anjay || !def)
+    {
+        return;
+    }
+    dimmer_object_t *obj = get_obj(def);
+
+    uint64_t current_timestamp;
+    if (avs_time_real_to_scalar(&current_timestamp, AVS_TIME_S,
+                                avs_time_real_now()))
+    {
+        return;
+    }
+
+    //Type instance et non objet !!!!
+    AVS_LIST(dimmer_instance_t)
+    it;
+    AVS_LIST_FOREACH(it, obj->instances)
+    {
+        if (it->last_notify_timestamp != current_timestamp)
+        {
+            // On notify que la ressource  RID_DIGITAL_INPUT_STATE a changé
+            // NE PAS OUBLIER DE MODIF ID de l'objet !!!!!!!
+
+            printf("On va notifier changement ressource dimmer\n");
+
+            if (!anjay_notify_changed(anjay, 3343, it->iid, RID_LEVEL))
+            {
+                it->last_notify_timestamp = current_timestamp;
+            }
+        }
     }
 }

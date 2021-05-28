@@ -111,6 +111,7 @@ typedef struct presence_instance_struct
     char application_type[64];
     bool captor_state;
     char application_type_backup[64];
+    uint64_t last_notify_timestamp;
 
     // TODO: instance state
 } presence_instance_t;
@@ -496,5 +497,50 @@ void presence_object_release(const anjay_dm_object_def_t **def)
         // TODO: object cleanup
 
         avs_free(obj);
+    }
+}
+
+void make_detection(const anjay_dm_object_def_t **def, int iid)
+{
+    if (def)
+    {
+        presence_object_t *obj = get_obj(def);
+        printf("Presence captor %d détecte %s : \n", iid, &obj->instances[iid].captor_state ? "true" : "false");
+        obj->instances[iid].captor_state = !obj->instances[iid].captor_state;
+    }
+}
+
+void presence_object_notify(anjay_t *anjay, const anjay_dm_object_def_t **def)
+{
+    if (!anjay || !def)
+    {
+        return;
+    }
+    presence_object_t *obj = get_obj(def);
+
+    uint64_t current_timestamp;
+    if (avs_time_real_to_scalar(&current_timestamp, AVS_TIME_S,
+                                avs_time_real_now()))
+    {
+        return;
+    }
+
+    //Type instance et non objet !!!!
+    AVS_LIST(presence_instance_t)
+    it;
+    AVS_LIST_FOREACH(it, obj->instances)
+    {
+        if (it->last_notify_timestamp != current_timestamp)
+        {
+            // On notify que la ressource  RID_DIGITAL_INPUT_STATE a changé
+            // NE PAS OUBLIER DE MODIF ID de l'objet !!!!!!!
+
+            printf("On va notifier changement ressource présence\n");
+
+            if (!anjay_notify_changed(anjay, 3302, it->iid, RID_DIGITAL_INPUT_STATE))
+            {
+                it->last_notify_timestamp = current_timestamp;
+            }
+        }
     }
 }

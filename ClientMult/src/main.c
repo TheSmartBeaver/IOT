@@ -24,6 +24,17 @@ on_off_switch_object_release(const anjay_dm_object_def_t **def);
 light_control_object_release(const anjay_dm_object_def_t **def);
 presence_object_release(const anjay_dm_object_def_t **def);*/
 
+typedef struct objects_to_be_modified
+{
+    const anjay_dm_object_def_t **dimmer_object;
+    const anjay_dm_object_def_t **on_off_switch_object;
+    const anjay_dm_object_def_t **light_control_object;
+    const anjay_dm_object_def_t **presence_captor_object;
+
+    anjay_t *anjay;
+
+} objects_to_be_modified_t;
+
 int main_loop(anjay_t *anjay)
 {
     while (true)
@@ -144,12 +155,76 @@ static int setup_server_object(anjay_t *anjay)
     return 0;
 }
 
-void *get_commands_from_terminal()
+void *get_commands_from_terminal(void *p)
 {
     char c;
+    //char command[50];
+    char *command = (char *)malloc((51) * sizeof(char));
+    //char command_splitted[5][50];
+    //int index_arg_command = 0;
+
+    //TEST
+    objects_to_be_modified_t *struct_ptr = (objects_to_be_modified_t *)p;
+    print_LightControl(struct_ptr->light_control_object);
+
     while ((c = getchar()) != EOF)
     {
-        putchar(c);
+        //putchar(c);
+        if (c == '\n')
+        {
+            printf("Commande détectée %s \n", command);
+
+            char *token = strtok(command, " ");
+            char *token2 = strtok(NULL, " "); //id de l'instance dont on modifie le state
+
+            //printf("taille du 2è argument %d\n", strlen(token2));
+            if (!token2)
+            {
+                printf("2ème argument manquant !\n");
+                continue;
+            }
+
+            int id_inst = atoi(token2);
+            printf("ARG 2 = %d\n", id_inst);
+            printf("ARG 2 = %d\n", atoi(token2));
+
+            if (strcmp(token, "a") == 0)
+            {
+                change_switch_state(struct_ptr->on_off_switch_object, id_inst, true);
+                switch_object_notify(struct_ptr->anjay, struct_ptr->on_off_switch_object);
+            }
+            else if (strcmp(token, "e") == 0)
+            {
+                change_switch_state(struct_ptr->on_off_switch_object, id_inst, false);
+                switch_object_notify(struct_ptr->anjay, struct_ptr->on_off_switch_object);
+            }
+            else if (strcmp(token, "+") == 0)
+            {
+                change_dimmer_level(struct_ptr->dimmer_object, id_inst, true);
+                dimmer_object_notify(struct_ptr->anjay, struct_ptr->dimmer_object);
+            }
+            else if (strcmp(token, "-") == 0)
+            {
+                change_dimmer_level(struct_ptr->dimmer_object, id_inst, false);
+                dimmer_object_notify(struct_ptr->anjay, struct_ptr->dimmer_object);
+            }
+            else if (strcmp(token, "presence") == 0)
+            {
+
+                make_detection(struct_ptr->presence_captor_object, id_inst);
+                presence_object_notify(struct_ptr->anjay, struct_ptr->presence_captor_object);
+            }
+            else /* default: */
+            {
+                printf("Commande inconnue");
+            }
+            //memset(command, 0, sizeof(command));
+            command = (char *)malloc((51) * sizeof(char));
+        }
+        else
+        {
+            strncat(command, &c, 1);
+        }
     }
 }
 
@@ -207,7 +282,7 @@ int main(int argc, char *argv[])
             result = anjay_register_object(anjay, presence_captor_object);
             printf("\n ça passe 4\n");
 
-            print_LightControl(light_control_object);
+            //print_LightControl(light_control_object);
         }
         else
         {
@@ -219,8 +294,19 @@ int main(int argc, char *argv[])
     {
         // ON LANCE thread pour récupérer commande du terminal !
         pthread_t id;
-        int dummy_arg = 0;
-        pthread_create(&id, NULL, get_commands_from_terminal, &dummy_arg);
+
+        // On passe les objets crées au thread en param
+        objects_to_be_modified_t args;
+        args.dimmer_object = dimmer_object;
+        args.light_control_object = light_control_object;
+        args.on_off_switch_object = on_off_switch_object;
+        args.presence_captor_object = presence_captor_object;
+
+        args.anjay = anjay;
+
+        //print_LightControl(args.light_control_object);
+
+        pthread_create(&id, NULL, get_commands_from_terminal, &args);
 
         //ON LOOP
         result = main_loop(anjay);

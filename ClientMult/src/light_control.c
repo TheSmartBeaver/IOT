@@ -85,6 +85,7 @@ typedef struct light_control_instance_struct
     int dimmer;
     char color[64];
     char application_type_backup[64];
+    uint64_t last_notify_timestamp;
     // TODO: instance state
 } light_control_instance_t;
 
@@ -368,8 +369,10 @@ static int resource_write(anjay_t *anjay,
     case RID_DIMMER:
     {
         assert(riid == ANJAY_ID_INVALID);
-        int32_t value;                            // TODO
-        return anjay_get_i32(ctx, &inst->dimmer); // TODO
+        int32_t value;                                  // TODO
+        int result = anjay_get_i32(ctx, &inst->dimmer); // TODO
+        printf("Nouvelle value de dimmer light control n° %d : %d \n", iid, inst->dimmer);
+        return result;
     }
 
     case RID_ON_TIME:
